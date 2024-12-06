@@ -17,6 +17,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.anonymous.OneTap",
+      "versionCode": 1,
       "permissions": [
         "INTERNET"
       ]
@@ -48,7 +49,16 @@
     },
     "androidStatusBar": {
       "hidden": true,
-      "translucent": true
+      "translucent": true,
+      "backgroundColor": "#ffffff"
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "42ba9fd6-7530-4aa7-8ede-7324e98f0756"
+      }
     }
   }
 }
