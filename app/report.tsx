@@ -179,12 +179,12 @@ const FileReport = (props: Props) => {
               height={220}
               yAxisLabel=""
               chartConfig={{
-                backgroundColor: '#ffffff',
-                backgroundGradientFrom: '#ffffff',
-                backgroundGradientTo: '#ffffff',
-                decimalPlaces: 2,
-                color: (opacity = 1) => `rgba(0, 0, 255, ${opacity})`,
-                labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                backgroundColor: Colors.background,
+                backgroundGradientFrom: Colors.background,
+                backgroundGradientTo: Colors.background,
+                decimalPlaces: 0,
+                color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
                 style: { borderRadius: 16 },
               }}
               bezier
@@ -260,4 +260,3 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
 });
-
