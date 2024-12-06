@@ -1,10 +1,12 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import React, { useEffect } from 'react';
-import { Link, router, SplashScreen, Stack } from 'expo-router';
+import { StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { router, SplashScreen, Stack } from 'expo-router';
 import { Colors } from "@/constants/Colors";
 import InputField from '@/components/InputField';
 import { Ionicons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
+import axios from 'axios';
+import { useFocusEffect } from '@react-navigation/native';
 
 type Props = {}
 
@@ -13,13 +15,49 @@ const SignUpScreen = (props: Props) => {
     'Playfair': require('../assets/fonts/Playfair.ttf'),
   });
 
-  useEffect(() => {
-    if (fontsLoaded) {
-      SplashScreen.hideAsync();
-    } else {
-      SplashScreen.preventAutoHideAsync();
+  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setEmail('');
+      setUsername('');
+      setPassword('');
+      setConfirmPassword('');
+
+      if (fontsLoaded) {
+        SplashScreen.hideAsync();
+      } else {
+        SplashScreen.preventAutoHideAsync();
+      }
+
+    }, [fontsLoaded])
+  );
+
+  const handleSignUp = async () => {
+    if (password !== confirmPassword) {
+      Alert.alert('Error', 'Passwords do not match');
+      return;
     }
-  }, [fontsLoaded]);
+
+    try {
+      const response = await axios.post('https://backendot.onrender.com/signup', {
+        email,
+        username,
+        password,
+      });
+      
+      if (response.status == 201) {
+        Alert.alert('Success', 'Account created successfully!');
+        router.replace('/signin');
+      }
+    } catch (error) {
+      console.error('Error signing up:', error);
+      Alert.alert('Error', 'Something went wrong, please try again');
+    }
+  };
 
   if (!fontsLoaded) {
     return null;
@@ -27,7 +65,7 @@ const SignUpScreen = (props: Props) => {
   
   return (
     <>
-      <Stack.Screen options={{ headerShown: false, }} />
+      <Stack.Screen options={{ headerShown: false }} />
 
       <View style={styles.container}>
         <View style={styles.menu}>
@@ -40,21 +78,45 @@ const SignUpScreen = (props: Props) => {
         </View>
 
         <View>
-          <InputField placeholder='Email' placeholderTextColor={Colors.gray} autoCapitalize='none' keyboardType='email-address' />
-          <InputField placeholder='Password' placeholderTextColor={Colors.gray} secureTextEntry={true} />
-          <InputField placeholder='Confirm Password' placeholderTextColor={Colors.gray} secureTextEntry={true} />
+          <InputField
+            placeholder="Email"
+            placeholderTextColor={Colors.gray}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            value={email}
+            onChangeText={setEmail}
+          />
+          <InputField
+            placeholder="Username"
+            placeholderTextColor={Colors.gray}
+            autoCapitalize="none"
+            value={username}
+            onChangeText={setUsername}
+          />
+          <InputField
+            placeholder="Password"
+            placeholderTextColor={Colors.gray}
+            secureTextEntry={true}
+            value={password}
+            onChangeText={setPassword}
+          />
+          <InputField
+            placeholder="Confirm Password"
+            placeholderTextColor={Colors.gray}
+            secureTextEntry={true}
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+          />
 
-          <Link href="/signin" asChild>
-            <TouchableOpacity style={styles.button}>
-              <Text style={styles.btnTxt}>Sign Up</Text>
-            </TouchableOpacity>
-          </Link>
+          <TouchableOpacity onPress={handleSignUp} style={styles.button}>
+            <Text style={styles.btnTxt}>Sign Up</Text>
+          </TouchableOpacity>
         </View>
 
-        <View style={{alignItems: 'center'}}>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+        <View style={{ alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Text style={styles.signupTxt}>
-              Already have an account? {" "}
+              Already have an account?{" "}
             </Text>
 
             <TouchableOpacity onPress={() => { router.replace('/signin') }}>
@@ -66,11 +128,10 @@ const SignUpScreen = (props: Props) => {
         </View>
       </View>
     </>
-    
-  )
-}
+  );
+};
 
-export default SignUpScreen
+export default SignUpScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -136,7 +197,7 @@ const styles = StyleSheet.create({
   signupTxtSpan: {
     fontFamily: 'Playfair',
     fontWeight: '600',
-    color: Colors.primary
+    color: Colors.primary,
   },
   divider: {
     borderTopColor: Colors.gray,
@@ -144,4 +205,4 @@ const styles = StyleSheet.create({
     width: '30%',
     marginTop: 10,
   },
-})
+});

@@ -1,25 +1,67 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useEffect } from 'react'
-import { router, SplashScreen, Stack } from 'expo-router'
-import { Colors } from '@/constants/Colors'
-import { Ionicons } from '@expo/vector-icons'
-import InputField from '@/components/InputField'
-import { useFonts } from 'expo-font'
+import { StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { router, SplashScreen, Stack } from 'expo-router';
+import { Colors } from '@/constants/Colors';
+import { Ionicons } from '@expo/vector-icons';
+import InputField from '@/components/InputField';
+import { useFonts } from 'expo-font';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
-type Props = {}
+type Props = {};
 
 const SignInScreen = (props: Props) => {
   const [fontsLoaded] = useFonts({
     'Playfair': require('../assets/fonts/Playfair.ttf'),
   });
 
-  useEffect(() => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useFocusEffect(
+    React.useCallback(() => {
+    setEmail('');
+    setPassword('');
+
     if (fontsLoaded) {
       SplashScreen.hideAsync();
     } else {
       SplashScreen.preventAutoHideAsync();
     }
-  }, [fontsLoaded]);
+
+    }, [fontsLoaded])
+  );
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please fill in both fields');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await axios.post('https://backendot.onrender.com/login', {
+        email,
+        password,
+      });
+
+      if (response.status == 200) {
+        const token = response.data.token;
+        await AsyncStorage.setItem('authToken', token);
+
+        router.replace('/dashboard');
+      } else {
+        Alert.alert('Login Failed', 'Invalid email or password');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Something went wrong, please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (!fontsLoaded) {
     return null;
@@ -27,31 +69,44 @@ const SignInScreen = (props: Props) => {
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: false, }} />
+      <Stack.Screen options={{ headerShown: false }} />
 
       <View style={styles.container}>
         <View style={styles.menu}>
           <Text style={styles.title}>Login Account</Text>
 
-          <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', gap: 25}} onPress={() => { router.replace('/') }} >
+          <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 25 }} onPress={() => { router.replace('/') }}>
             <Ionicons name="arrow-back-outline" size={20} color={Colors.gray} />
             <Text style={styles.subtitle}>Go Back</Text>
-          </TouchableOpacity>  
-        </View>
-
-        <View>
-          <InputField placeholder='Email' placeholderTextColor={Colors.gray} autoCapitalize='none' keyboardType='email-address' />
-          <InputField placeholder='Password' placeholderTextColor={Colors.gray} secureTextEntry={true} />
-
-          <TouchableOpacity style={styles.button} onPress={() => { router.replace('/dashboard') }}>
-            <Text style={styles.btnTxt}>Login</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={{alignItems: 'center'}}>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+        <View>
+          <InputField
+            placeholder='Email'
+            placeholderTextColor={Colors.gray}
+            autoCapitalize='none'
+            keyboardType='email-address'
+            value={email}
+            onChangeText={setEmail}
+          />
+          <InputField
+            placeholder='Password'
+            placeholderTextColor={Colors.gray}
+            secureTextEntry={true}
+            value={password}
+            onChangeText={setPassword}
+          />
+
+          <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
+            <Text style={styles.btnTxt}>{loading ? 'Logging in...' : 'Login'}</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={{ alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Text style={styles.signupTxt}>
-              Don't hove an account? {" "}
+              Don't have an account? {" "}
             </Text>
 
             <TouchableOpacity onPress={() => { router.replace('/signup') }}>
@@ -63,10 +118,10 @@ const SignInScreen = (props: Props) => {
         </View>
       </View>
     </>
-  )
-}
+  );
+};
 
-export default SignInScreen
+export default SignInScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -132,7 +187,7 @@ const styles = StyleSheet.create({
   signupTxtSpan: {
     fontFamily: 'Playfair',
     fontWeight: '600',
-    color: Colors.primary
+    color: Colors.primary,
   },
   divider: {
     borderTopColor: Colors.gray,
@@ -140,5 +195,4 @@ const styles = StyleSheet.create({
     width: '30%',
     marginTop: 10,
   },
-  
-})
+});

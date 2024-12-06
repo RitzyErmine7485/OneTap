@@ -1,11 +1,12 @@
 import { ImageBackground, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React, { useEffect } from "react";
+import React from "react";
 import { router, SplashScreen, Stack } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
-import Animated, { FadeIn, FadeInRight, FadeInUp } from "react-native-reanimated";
+import Animated, { FadeInRight, FadeInUp } from "react-native-reanimated";
 import { useFonts } from 'expo-font';
+import { useFocusEffect } from '@react-navigation/native';
 
 type Props = {};
 
@@ -15,13 +16,15 @@ const WelcomeScreen = (props: Props) => {
     'PlayfairItalic': require('../assets/fonts/PlayfairItalic.ttf'),
   });
 
-  useEffect(() => {
+  useFocusEffect(
+    React.useCallback(() => {
     if (fontsLoaded) {
       SplashScreen.hideAsync();
     } else {
       SplashScreen.preventAutoHideAsync();
     }
-  }, [fontsLoaded]);
+  }, [fontsLoaded])
+  );
 
   if (!fontsLoaded) {
     return null;
@@ -40,25 +43,15 @@ const WelcomeScreen = (props: Props) => {
 
               <Animated.View style={{alignSelf: 'stretch'}} entering={FadeInRight.delay(700).duration(500)}>
                 <TouchableOpacity style={styles.button} onPress={() => { router.replace('/signup') }}>
-                  <Ionicons name="mail-outline" size={20} color={'white'}/>
-                  <Text style={styles.btnTxt}>Continue with Email</Text>
+                  <Ionicons name="person-add-outline" size={20} color={'white'}/>
+                  <Text style={styles.btnTxt}>Create Account</Text>
                 </TouchableOpacity>
               </Animated.View>
 
               <Animated.View style={{alignSelf: 'stretch'}} entering={FadeInRight.delay(900).duration(500)}>
-                <TouchableOpacity style={styles.button} onPress={() => { router.replace('/google') }}>
-                  <Ionicons name="logo-google" size={20} color={'white'}/>
-                  <Text style={styles.btnTxt}>Continue with Google</Text>
-                </TouchableOpacity>
-              </Animated.View>
-
-              <Animated.View style={{alignItems: 'center'}} entering={FadeIn.delay(1100).duration(500)}>
-                <Text style={styles.signupTxt}>
-                  Already have an account? {" "}
-                </Text>
-
-                <TouchableOpacity onPress={() => { router.replace('/signin') }}>
-                  <Text style={styles.signupTxtSpan}>Sign In</Text>
+                <TouchableOpacity style={styles.button} onPress={() => { router.replace('/signin') }}>
+                  <Ionicons name="log-in-outline" size={20} color={'white'}/>
+                  <Text style={styles.btnTxt}>Sign In</Text>
                 </TouchableOpacity>
               </Animated.View>
             </View>
@@ -74,6 +67,7 @@ export default WelcomeScreen;
 const styles = StyleSheet.create({
   background: {
     flex: 1,
+    paddingBottom: 30,
     justifyContent: 'flex-end',
   },
   wrapper: {
