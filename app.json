@@ -19,7 +19,7 @@
       "package": "com.anonymous.OneTap",
       "versionCode": 1,
       "permissions": [
-        "INTERNET"
+        "INTERNET",
         "ACCESS_NETWORK_STATE",
         "ACCESS_WIFI_STATE",
         "READ_EXTERNAL_STORAGE",
